@@ -1,0 +1,46 @@
+version: '3.4'
+
+services:
+  lending.webapi:
+    image: ${DOCKER_REGISTRY-}lendingwebapi
+    container_name: LendingWebApi
+    build:
+      context: .
+      dockerfile: Lending.WebApi/Dockerfile
+    depends_on:
+      - lendingDatabase
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development 
+      - "ConnectionStrings__Database=host=lendingDatabase;Port=5432;Database=lending;User Id=postgres;Password=postgress;"
+    ports:
+      - 8082:80
+      - 4431:443
+  lendingDatabase:
+    image: postgres:latest
+    container_name: lendingDatabase
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgress
+      - POSTGRES_DB=lending
+    restart: always
+    volumes:
+      - database:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4:6.17
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_LISTEN_PORT: 80
+    ports:
+      - 8009:80
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+volumes:
+  database:
+  pgadmin-data:
+    
